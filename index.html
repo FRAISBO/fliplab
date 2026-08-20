@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FlipLab — Reselling Dashboard</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#18233b;--text:#f5f7ff;--muted:#9ca9c7;--accent:#7c5cff;--good:#35d07f;--bad:#ff647c;--line:#263452}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#080c18,#111a30);color:var(--text)}
+.wrap{max-width:1100px;margin:auto;padding:28px 18px 50px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:25px}
+.brand{font-size:28px;font-weight:850}.brand span{color:var(--accent)}.sub{color:var(--muted);font-size:13px}
+button{border:0;border-radius:12px;padding:11px 15px;font-weight:750;cursor:pointer;background:var(--accent);color:white}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:rgba(18,26,45,.92);border:1px solid var(--line);border-radius:18px;padding:18px}.label{color:var(--muted);font-size:12px}.num{font-size:26px;font-weight:850;margin-top:7px}.good{color:var(--good)}.bad{color:var(--bad)}
+.tabs{display:flex;gap:8px;margin:24px 0 14px;flex-wrap:wrap}.tab{background:var(--panel);border:1px solid var(--line);color:var(--muted)}.tab.active{background:var(--accent);color:#fff}
+.panel{background:rgba(18,26,45,.95);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:12px}.row{display:flex;gap:10px;flex-wrap:wrap}.field{flex:1;min-width:150px}input,select,textarea{width:100%;background:#0d1528;border:1px solid var(--line);color:white;border-radius:11px;padding:11px;margin-top:6px}textarea{min-height:80px;resize:vertical}
+label{font-size:12px;color:var(--muted)}.hidden{display:none}.item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.title{font-weight:800}.meta{font-size:12px;color:var(--muted);margin-top:4px}.pill{font-size:11px;padding:6px 9px;border-radius:999px;background:var(--panel2);color:var(--muted)}.empty{color:var(--muted);padding:20px 0;text-align:center}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.small{padding:7px 10px;font-size:12px;background:var(--panel2);border:1px solid var(--line)}.danger{color:#fff;background:#8f2940}
+footer{color:var(--muted);font-size:11px;text-align:center;margin-top:25px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start}.item{align-items:flex-start;flex-direction:column}.actions{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><div class="brand">Flip<span>Lab</span> 🚀</div><div class="sub">La vostra dashboard per trasformare 34 € in un piccolo business.</div></div>
+    <button onclick="resetAll()">Reset demo</button>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="label">CAPITALE</div><div class="num" id="capital">€34,00</div></div>
+    <div class="card"><div class="label">INVESTITO</div><div class="num" id="invested">€0,00</div></div>
+    <div class="card"><div class="label">RICAVI</div><div class="num good" id="revenue">€0,00</div></div>
+    <div class="card"><div class="label">PROFITTO</div><div class="num" id="profit">€0,00</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('ideas',this)">💡 Idee</button>
+    <button class="tab" onclick="show('stock',this)">📦 Inventario</button>
+    <button class="tab" onclick="show('sales',this)">💰 Vendite</button>
+  </div>
+
+  <section id="ideas">
+    <div class="panel">
+      <h3>Nuova idea</h3>
+      <div class="row">
+        <div class="field"><label>Prodotto</label><input id="iname" placeholder="es. Maglia PSG vintage"></div>
+        <div class="field"><label>Prezzo d'acquisto (€)</label><input id="ibuy" type="number" step="0.01" placeholder="6"></div>
+        <div class="field"><label>Prezzo vendita stimato (€)</label><input id="isell" type="number" step="0.01" placeholder="15"></div>
+        <div class="field"><label>Decisione</label><select id="ivote"><option>DA VALUTARE</option><option>COMPRA</option><option>NO</option></select></div>
+      </div>
+      <div style="margin-top:12px"><button onclick="addIdea()">+ Aggiungi idea</button></div>
+    </div>
+    <div class="panel"><h3>Le nostre idee</h3><div id="ideasList"></div></div>
+  </section>
+
+  <section id="stock" class="hidden">
+    <div class="panel">
+      <h3>Aggiungi al magazzino</h3>
+      <div class="row">
+        <div class="field"><label>Prodotto</label><input id="sname" placeholder="es. Maglia Brasile"></div>
+        <div class="field"><label>Costo (€)</label><input id="scost" type="number" step="0.01" placeholder="5"></div>
+        <div class="field"><label>Prezzo target (€)</label><input id="starget" type="number" step="0.01" placeholder="12"></div>
+      </div>
+      <div style="margin-top:12px"><button onclick="addStock()">+ Aggiungi stock</button></div>
+    </div>
+    <div class="panel"><h3>Inventario</h3><div id="stockList"></div></div>
+  </section>
+
+  <section id="sales" class="hidden">
+    <div class="panel">
+      <h3>Registra una vendita</h3>
+      <div class="row">
+        <div class="field"><label>Prodotto</label><input id="vname" placeholder="es. Maglia PSG vintage"></div>
+        <div class="field"><label>Ricavo (€)</label><input id="vprice" type="number" step="0.01" placeholder="15"></div>
+        <div class="field"><label>Costo (€)</label><input id="vcost" type="number" step="0.01" placeholder="6"></div>
+      </div>
+      <div style="margin-top:12px"><button onclick="addSale()">+ Registra vendita</button></div>
+    </div>
+    <div class="panel"><h3>Vendite</h3><div id="salesList"></div></div>
+  </section>
+
+  <footer>I dati vengono salvati automaticamente su questo dispositivo (localStorage). Per condividere gli stessi dati tra due telefoni servirà una versione online con database.</footer>
+</div>
+
+<script>
+const KEY='fliplab_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"capital":34,"ideas":[],"stock":[],"sales":[]}');
+const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(n||0);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function show(id,btn){document.querySelectorAll('section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
+function addIdea(){let n=iname.value.trim(),b=+ibuy.value,s=+isell.value;if(!n||!b||!s)return alert('Compila tutti i campi.');data.ideas.unshift({n,b,s,v:ivote.value});save();iname.value=ibuy.value=isell.value=''}
+function addStock(){let n=sname.value.trim(),c=+scost.value,t=+starget.value;if(!n||!c||!t)return alert('Compila tutti i campi.');data.stock.unshift({n,c,t});save();sname.value=scost.value=starget.value=''}
+function addSale(){let n=vname.value.trim(),p=+vprice.value,c=+vcost.value;if(!n||!p||!c)return alert('Compila tutti i campi.');data.sales.unshift({n,p,c});save();vname.value=vprice.value=vcost.value=''}
+function del(type,i){data[type].splice(i,1);save()}
+function render(){
+ let invested=data.stock.reduce((a,x)=>a+x.c,0), revenue=data.sales.reduce((a,x)=>a+x.p,0), profit=data.sales.reduce((a,x)=>a+x.p-x.c,0);
+ capital.textContent=euro(data.capital-invested+revenue); investedEl=invested; document.getElementById('invested').textContent=euro(invested);document.getElementById('revenue').textContent=euro(revenue);document.getElementById('profit').textContent=euro(profit);
+ document.getElementById('ideasList').innerHTML=data.ideas.length?data.ideas.map((x,i)=>`<div class="item"><div><div class="title">${esc(x.n)}</div><div class="meta">Compra ${euro(x.b)} · Target ${euro(x.s)} · Margine ${euro(x.s-x.b)}</div></div><div class="actions"><span class="pill">${x.v}</span><button class="small danger" onclick="del('ideas',${i})">Elimina</button></div></div>`).join(''):'<div class="empty">Ancora nessuna idea.</div>';
+ document.getElementById('stockList').innerHTML=data.stock.length?data.stock.map((x,i)=>`<div class="item"><div><div class="title">${esc(x.n)}</div><div class="meta">Costo ${euro(x.c)} · Target ${euro(x.t)} · Margine potenziale ${euro(x.t-x.c)}</div></div><button class="small danger" onclick="del('stock',${i})">Elimina</button></div>`).join(''):'<div class="empty">Inventario vuoto.</div>';
+ document.getElementById('salesList').innerHTML=data.sales.length?data.sales.map((x,i)=>`<div class="item"><div><div class="title">${esc(x.n)}</div><div class="meta">Ricavo ${euro(x.p)} · Costo ${euro(x.c)} · Profitto ${euro(x.p-x.c)}</div></div><button class="small danger" onclick="del('sales',${i})">Elimina</button></div>`).join(''):'<div class="empty">Nessuna vendita registrata.</div>';
+}
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function resetAll(){if(confirm('Cancellare tutti i dati?')){data={capital:34,ideas:[],stock:[],sales:[]};save()}}
+render();
+</script>
+</body>
+</html>
