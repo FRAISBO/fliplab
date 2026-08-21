@@ -581,11 +581,11 @@ async function addIdea(){
   const {error}=await db
     .from("ideas")
     .insert({
-      product_name:product,
-      buy_price:buy,
-      sell_price:sell,
-      decision:decision,
-      created_by:currentUser.id
+      product: product,
+buy_price: buy,
+estimated_sell_price: sell,
+decision: decision,
+created_by: currentUser.id
     });
 
   if(error){
