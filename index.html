@@ -1,107 +1,852 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FlipLab — Reselling Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlipLab 🚀</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--bg:#0b1020;--panel:#121a2d;--panel2:#18233b;--text:#f5f7ff;--muted:#9ca9c7;--accent:#7c5cff;--good:#35d07f;--bad:#ff647c;--line:#263452}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#080c18,#111a30);color:var(--text)}
-.wrap{max-width:1100px;margin:auto;padding:28px 18px 50px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:25px}
-.brand{font-size:28px;font-weight:850}.brand span{color:var(--accent)}.sub{color:var(--muted);font-size:13px}
-button{border:0;border-radius:12px;padding:11px 15px;font-weight:750;cursor:pointer;background:var(--accent);color:white}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:rgba(18,26,45,.92);border:1px solid var(--line);border-radius:18px;padding:18px}.label{color:var(--muted);font-size:12px}.num{font-size:26px;font-weight:850;margin-top:7px}.good{color:var(--good)}.bad{color:var(--bad)}
-.tabs{display:flex;gap:8px;margin:24px 0 14px;flex-wrap:wrap}.tab{background:var(--panel);border:1px solid var(--line);color:var(--muted)}.tab.active{background:var(--accent);color:#fff}
-.panel{background:rgba(18,26,45,.95);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:12px}.row{display:flex;gap:10px;flex-wrap:wrap}.field{flex:1;min-width:150px}input,select,textarea{width:100%;background:#0d1528;border:1px solid var(--line);color:white;border-radius:11px;padding:11px;margin-top:6px}textarea{min-height:80px;resize:vertical}
-label{font-size:12px;color:var(--muted)}.hidden{display:none}.item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.title{font-weight:800}.meta{font-size:12px;color:var(--muted);margin-top:4px}.pill{font-size:11px;padding:6px 9px;border-radius:999px;background:var(--panel2);color:var(--muted)}.empty{color:var(--muted);padding:20px 0;text-align:center}
-.actions{display:flex;gap:7px;flex-wrap:wrap}.small{padding:7px 10px;font-size:12px;background:var(--panel2);border:1px solid var(--line)}.danger{color:#fff;background:#8f2940}
-footer{color:var(--muted);font-size:11px;text-align:center;margin-top:25px}
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.top{align-items:flex-start}.item{align-items:flex-start;flex-direction:column}.actions{width:100%}}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#090d18;
+  color:#f4f7ff;
+}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+#login{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at 20% 20%,#663cff55,transparent 35%),
+    radial-gradient(circle at 80% 80%,#25d98c33,transparent 35%),
+    #090d18;
+}
+.loginBox{
+  width:100%;
+  max-width:430px;
+  background:#12192b;
+  border:1px solid #303b5c;
+  border-radius:28px;
+  padding:35px;
+  box-shadow:0 25px 80px #0008;
+}
+.logo{
+  font-size:34px;
+  font-weight:900;
+}
+.logo span{color:#8e6cff}
+.loginBox h1{font-size:30px;margin:25px 0 8px}
+.muted{color:#8995b3}
+input,textarea,select{
+  width:100%;
+  background:#0b1120;
+  color:white;
+  border:1px solid #34405f;
+  border-radius:12px;
+  padding:13px;
+  outline:none;
+}
+input:focus,textarea:focus,select:focus{border-color:#8e6cff}
+label{
+  display:block;
+  color:#aeb9d2;
+  font-size:12px;
+  margin:15px 0 7px;
+}
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:12px 17px;
+  background:linear-gradient(90deg,#795cff,#9c73ff);
+  color:white;
+  font-weight:800;
+}
+.btn.secondary{
+  background:#1a243a;
+  border:1px solid #394666;
+}
+.error{
+  color:#ff7d8b;
+  margin-top:12px;
+  font-size:13px;
+}
+
+header{
+  padding:22px 30px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #202a43;
+  background:#0c1220dd;
+  backdrop-filter:blur(10px);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+.brand{font-size:27px;font-weight:900}
+.brand span{color:#8e6cff}
+.status{font-size:11px;color:#7ee2ae;margin-top:4px}
+
+main{max-width:1200px;margin:auto;padding:25px}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  padding-bottom:12px;
+}
+.tab{
+  white-space:nowrap;
+  border:1px solid #303b58;
+  background:#11192b;
+  color:#aab5cd;
+  border-radius:12px;
+  padding:11px 15px;
+}
+.tab.active{
+  color:white;
+  background:#7457e8;
+  border-color:#896eff;
+}
+
+.hero{
+  margin-top:15px;
+  border-radius:27px;
+  padding:38px;
+  min-height:310px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:
+    radial-gradient(circle at 85% 20%,#805dff55,transparent 30%),
+    radial-gradient(circle at 20% 100%,#29d99122,transparent 35%),
+    linear-gradient(135deg,#151e35,#0d1425);
+  border:1px solid #34405e;
+}
+.hero h1{font-size:48px;line-height:1;margin:10px 0}
+.gradient{
+  background:linear-gradient(90deg,#a78cff,#59e4a1);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.hero p{color:#aeb9d2;max-width:650px}
+.badge{
+  width:150px;height:150px;border-radius:50%;
+  border:1px solid #59678c;
+  background:#785cff22;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-size:30px;font-weight:900;
+}
+.badge small{font-size:10px;color:#9ba8c2}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin:15px 0;
+}
+.stat,.card{
+  background:#11192b;
+  border:1px solid #293652;
+  border-radius:17px;
+  padding:18px;
+}
+.stat small{color:#8794b0}
+.stat strong{display:block;font-size:25px;margin-top:6px}
+
+section{margin-top:18px}
+h2{margin:0 0 12px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+.formGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.list{margin-top:14px}
+.item{
+  background:#11192b;
+  border:1px solid #293652;
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:9px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+.item b{font-size:16px}
+.tag{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:8px;
+  background:#24314b;
+  color:#b9c6e0;
+  font-size:10px;
+  font-weight:800;
+}
+.good{color:#6ee7a4}
+.bad{color:#ff7888}
+
+.logout{
+  border:1px solid #394560;
+  background:#151e32;
+  color:#ccd4e5;
+  padding:9px 12px;
+  border-radius:10px;
+}
+
+@media(max-width:800px){
+  header{padding:17px}
+  main{padding:15px}
+  .hero{padding:25px;flex-direction:column;align-items:flex-start}
+  .hero h1{font-size:38px}
+  .badge{align-self:center}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid,.formGrid{grid-template-columns:1fr}
+}
 </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="top">
-    <div><div class="brand">Flip<span>Lab</span> 🚀</div><div class="sub">La vostra dashboard per trasformare 34 € in un piccolo business.</div></div>
-    <button onclick="resetAll()">Reset demo</button>
-  </div>
 
-  <div class="grid">
-    <div class="card"><div class="label">CAPITALE</div><div class="num" id="capital">€34,00</div></div>
-    <div class="card"><div class="label">INVESTITO</div><div class="num" id="invested">€0,00</div></div>
-    <div class="card"><div class="label">RICAVI</div><div class="num good" id="revenue">€0,00</div></div>
-    <div class="card"><div class="label">PROFITTO</div><div class="num" id="profit">€0,00</div></div>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="loginBox">
+    <div class="logo">Flip<span>Lab</span> 🚀</div>
+    <h1>Bentornati fra 👋</h1>
+    <p class="muted">
+      Accedi al vostro spazio privato di reselling.
+    </p>
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="La tua email">
+
+    <label>Password</label>
+    <input id="password" type="password" placeholder="La tua password">
+
+    <button class="btn" style="width:100%;margin-top:20px" onclick="login()">
+      🔐 Accedi a FlipLab
+    </button>
+
+    <div id="loginError" class="error"></div>
   </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<header>
+  <div>
+    <div class="brand">Flip<span>Lab</span> 🚀</div>
+    <div id="status" class="status">☁️ Online</div>
+  </div>
+  <button class="logout" onclick="logout()">Esci</button>
+</header>
+
+<main>
 
   <div class="tabs">
-    <button class="tab active" onclick="show('ideas',this)">💡 Idee</button>
-    <button class="tab" onclick="show('stock',this)">📦 Inventario</button>
+    <button class="tab active" onclick="show('home',this)">🏠 Home</button>
+    <button class="tab" onclick="show('ideas',this)">💡 Idee</button>
+    <button class="tab" onclick="show('inventory',this)">📦 Inventario</button>
     <button class="tab" onclick="show('sales',this)">💰 Vendite</button>
   </div>
 
-  <section id="ideas">
-    <div class="panel">
-      <h3>Nuova idea</h3>
-      <div class="row">
-        <div class="field"><label>Prodotto</label><input id="iname" placeholder="es. Maglia PSG vintage"></div>
-        <div class="field"><label>Prezzo d'acquisto (€)</label><input id="ibuy" type="number" step="0.01" placeholder="6"></div>
-        <div class="field"><label>Prezzo vendita stimato (€)</label><input id="isell" type="number" step="0.01" placeholder="15"></div>
-        <div class="field"><label>Decisione</label><select id="ivote"><option>DA VALUTARE</option><option>COMPRA</option><option>NO</option></select></div>
+  <!-- HOME -->
+  <section id="home">
+    <div class="hero">
+      <div>
+        <div class="muted">FLIPLAB • STARTING FROM €34</div>
+        <h1>Benvenuti fra 👋<br><span class="gradient">Isbo & Co.</span></h1>
+        <p>
+          Il vostro piccolo laboratorio di reselling.
+          Cercate bene, comprate meglio e trasformate piccoli flip
+          in qualcosa di grande.
+        </p>
       </div>
-      <div style="margin-top:12px"><button onclick="addIdea()">+ Aggiungi idea</button></div>
+
+      <div class="badge">
+        ⚡
+        <b id="capital">€34</b>
+        <small>CAPITALE INIZIALE</small>
+      </div>
     </div>
-    <div class="panel"><h3>Le nostre idee</h3><div id="ideasList"></div></div>
+
+    <div class="stats">
+      <div class="stat">
+        <small>CAPITALE</small>
+        <strong id="statCapital">€34</strong>
+      </div>
+      <div class="stat">
+        <small>INVESTITO</small>
+        <strong id="statInvested">€0</strong>
+      </div>
+      <div class="stat">
+        <small>RICAVI</small>
+        <strong id="statRevenue">€0</strong>
+      </div>
+      <div class="stat">
+        <small>PROFITTO</small>
+        <strong id="statProfit">€0</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 La missione</h2>
+      <p class="muted">
+        €34 → €50 → €100 → €500
+      </p>
+    </div>
   </section>
 
-  <section id="stock" class="hidden">
-    <div class="panel">
-      <h3>Aggiungi al magazzino</h3>
-      <div class="row">
-        <div class="field"><label>Prodotto</label><input id="sname" placeholder="es. Maglia Brasile"></div>
-        <div class="field"><label>Costo (€)</label><input id="scost" type="number" step="0.01" placeholder="5"></div>
-        <div class="field"><label>Prezzo target (€)</label><input id="starget" type="number" step="0.01" placeholder="12"></div>
+  <!-- IDEE -->
+  <section id="ideas" class="hidden">
+    <div class="card">
+      <h2>💡 Nuova idea</h2>
+
+      <div class="formGrid">
+        <div>
+          <label>Prodotto</label>
+          <input id="ideaProduct" placeholder="Es. Maglia Milan vintage">
+        </div>
+
+        <div>
+          <label>Prezzo acquisto</label>
+          <input id="ideaBuy" type="number" step="0.01" placeholder="7">
+        </div>
+
+        <div>
+          <label>Rivendita prevista</label>
+          <input id="ideaSell" type="number" step="0.01" placeholder="20">
+        </div>
       </div>
-      <div style="margin-top:12px"><button onclick="addStock()">+ Aggiungi stock</button></div>
+
+      <label>Decisione</label>
+      <select id="ideaDecision">
+        <option>DA VALUTARE</option>
+        <option>INTERESSANTE</option>
+        <option>COMPRA</option>
+        <option>LASCIAR PERDERE</option>
+      </select>
+
+      <button class="btn" style="margin-top:15px" onclick="addIdea()">
+        + Aggiungi idea
+      </button>
     </div>
-    <div class="panel"><h3>Inventario</h3><div id="stockList"></div></div>
+
+    <div class="list" id="ideasList"></div>
   </section>
 
+  <!-- INVENTARIO -->
+  <section id="inventory" class="hidden">
+    <div class="card">
+      <h2>📦 Aggiungi prodotto</h2>
+
+      <div class="formGrid">
+        <div>
+          <label>Prodotto</label>
+          <input id="invProduct" placeholder="Es. Maglia PSG">
+        </div>
+
+        <div>
+          <label>Costo</label>
+          <input id="invBuy" type="number" step="0.01">
+        </div>
+
+        <div>
+          <label>Prezzo target</label>
+          <input id="invSell" type="number" step="0.01">
+        </div>
+      </div>
+
+      <button class="btn" style="margin-top:15px" onclick="addInventory()">
+        + Aggiungi all'inventario
+      </button>
+    </div>
+
+    <div class="list" id="inventoryList"></div>
+  </section>
+
+  <!-- VENDITE -->
   <section id="sales" class="hidden">
-    <div class="panel">
-      <h3>Registra una vendita</h3>
-      <div class="row">
-        <div class="field"><label>Prodotto</label><input id="vname" placeholder="es. Maglia PSG vintage"></div>
-        <div class="field"><label>Ricavo (€)</label><input id="vprice" type="number" step="0.01" placeholder="15"></div>
-        <div class="field"><label>Costo (€)</label><input id="vcost" type="number" step="0.01" placeholder="6"></div>
+    <div class="card">
+      <h2>💰 Registra vendita</h2>
+
+      <div class="formGrid">
+        <div>
+          <label>Prodotto</label>
+          <input id="saleProduct" placeholder="Es. Maglia PSG">
+        </div>
+
+        <div>
+          <label>Costo</label>
+          <input id="saleBuy" type="number" step="0.01">
+        </div>
+
+        <div>
+          <label>Prezzo vendita</label>
+          <input id="salePrice" type="number" step="0.01">
+        </div>
       </div>
-      <div style="margin-top:12px"><button onclick="addSale()">+ Registra vendita</button></div>
+
+      <button class="btn" style="margin-top:15px" onclick="addSale()">
+        + Registra vendita
+      </button>
     </div>
-    <div class="panel"><h3>Vendite</h3><div id="salesList"></div></div>
+
+    <div class="list" id="salesList"></div>
   </section>
 
-  <footer>I dati vengono salvati automaticamente su questo dispositivo (localStorage). Per condividere gli stessi dati tra due telefoni servirà una versione online con database.</footer>
+</main>
 </div>
 
 <script>
-const KEY='fliplab_v1';
-let data=JSON.parse(localStorage.getItem(KEY)||'{"capital":34,"ideas":[],"stock":[],"sales":[]}');
-const euro=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(n||0);
-function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
-function show(id,btn){document.querySelectorAll('section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
-function addIdea(){let n=iname.value.trim(),b=+ibuy.value,s=+isell.value;if(!n||!b||!s)return alert('Compila tutti i campi.');data.ideas.unshift({n,b,s,v:ivote.value});save();iname.value=ibuy.value=isell.value=''}
-function addStock(){let n=sname.value.trim(),c=+scost.value,t=+starget.value;if(!n||!c||!t)return alert('Compila tutti i campi.');data.stock.unshift({n,c,t});save();sname.value=scost.value=starget.value=''}
-function addSale(){let n=vname.value.trim(),p=+vprice.value,c=+vcost.value;if(!n||!p||!c)return alert('Compila tutti i campi.');data.sales.unshift({n,p,c});save();vname.value=vprice.value=vcost.value=''}
-function del(type,i){data[type].splice(i,1);save()}
-function render(){
- let invested=data.stock.reduce((a,x)=>a+x.c,0), revenue=data.sales.reduce((a,x)=>a+x.p,0), profit=data.sales.reduce((a,x)=>a+x.p-x.c,0);
- capital.textContent=euro(data.capital-invested+revenue); investedEl=invested; document.getElementById('invested').textContent=euro(invested);document.getElementById('revenue').textContent=euro(revenue);document.getElementById('profit').textContent=euro(profit);
- document.getElementById('ideasList').innerHTML=data.ideas.length?data.ideas.map((x,i)=>`<div class="item"><div><div class="title">${esc(x.n)}</div><div class="meta">Compra ${euro(x.b)} · Target ${euro(x.s)} · Margine ${euro(x.s-x.b)}</div></div><div class="actions"><span class="pill">${x.v}</span><button class="small danger" onclick="del('ideas',${i})">Elimina</button></div></div>`).join(''):'<div class="empty">Ancora nessuna idea.</div>';
- document.getElementById('stockList').innerHTML=data.stock.length?data.stock.map((x,i)=>`<div class="item"><div><div class="title">${esc(x.n)}</div><div class="meta">Costo ${euro(x.c)} · Target ${euro(x.t)} · Margine potenziale ${euro(x.t-x.c)}</div></div><button class="small danger" onclick="del('stock',${i})">Elimina</button></div>`).join(''):'<div class="empty">Inventario vuoto.</div>';
- document.getElementById('salesList').innerHTML=data.sales.length?data.sales.map((x,i)=>`<div class="item"><div><div class="title">${esc(x.n)}</div><div class="meta">Ricavo ${euro(x.p)} · Costo ${euro(x.c)} · Profitto ${euro(x.p-x.c)}</div></div><button class="small danger" onclick="del('sales',${i})">Elimina</button></div>`).join(''):'<div class="empty">Nessuna vendita registrata.</div>';
+const SUPABASE_URL =
+  "https://rawbhtrhdonxucjojjxo.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_C6-xgW_KLH0QToUIantVhQ_VYsnc9FA";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
+
+function euro(value){
+  return new Intl.NumberFormat("it-IT",{
+    style:"currency",
+    currency:"EUR"
+  }).format(Number(value)||0);
 }
-function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function resetAll(){if(confirm('Cancellare tutti i dati?')){data={capital:34,ideas:[],stock:[],sales:[]};save()}}
-render();
+
+async function login(){
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const error =
+    document.getElementById("loginError");
+
+  error.textContent="";
+
+  if(!email || !password){
+    error.textContent="Inserisci email e password.";
+    return;
+  }
+
+  const {data,error:err} =
+    await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if(err){
+    error.textContent =
+      "Email o password non corrette.";
+    console.error(err);
+    return;
+  }
+
+  currentUser=data.user;
+
+  document.getElementById("login")
+    .classList.add("hidden");
+
+  document.getElementById("app")
+    .classList.remove("hidden");
+
+  await loadEverything();
+}
+
+async function logout(){
+
+  await db.auth.signOut();
+
+  document.getElementById("app")
+    .classList.add("hidden");
+
+  document.getElementById("login")
+    .classList.remove("hidden");
+}
+
+function show(id,button){
+
+  document.querySelectorAll("main section")
+    .forEach(x=>x.classList.add("hidden"));
+
+  document.getElementById(id)
+    .classList.remove("hidden");
+
+  document.querySelectorAll(".tab")
+    .forEach(x=>x.classList.remove("active"));
+
+  if(button)
+    button.classList.add("active");
+}
+
+async function loadEverything(){
+
+  await Promise.all([
+    loadIdeas(),
+    loadInventory(),
+    loadSales()
+  ]);
+
+  updateStats();
+}
+
+async function loadIdeas(){
+
+  const {data,error}=await db
+    .from("ideas")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const box=document.getElementById("ideasList");
+
+  if(!data.length){
+    box.innerHTML=
+      '<div class="card muted">Ancora nessuna idea. Aggiungetene una! 👀</div>';
+    return;
+  }
+
+  box.innerHTML=data.map(x=>{
+
+    const profit=
+      Number(x.sell_price)-Number(x.buy_price);
+
+    return `
+      <div class="item">
+        <div>
+          <b>${escapeHtml(x.product_name)}</b>
+          <div class="muted">
+            ${euro(x.buy_price)} → ${euro(x.sell_price)}
+            · Profitto ${euro(profit)}
+          </div>
+        </div>
+
+        <div>
+          <span class="tag">${escapeHtml(x.decision)}</span>
+          <button class="logout"
+            onclick="deleteIdea(${x.id})">×</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function addIdea(){
+
+  const product=
+    document.getElementById("ideaProduct")
+      .value.trim();
+
+  const buy=
+    Number(document.getElementById("ideaBuy").value);
+
+  const sell=
+    Number(document.getElementById("ideaSell").value);
+
+  const decision=
+    document.getElementById("ideaDecision").value;
+
+  if(!product || !buy || !sell){
+    alert("Compila prodotto, acquisto e rivendita.");
+    return;
+  }
+
+  const {error}=await db
+    .from("ideas")
+    .insert({
+      product_name:product,
+      buy_price:buy,
+      sell_price:sell,
+      decision:decision,
+      created_by:currentUser.id
+    });
+
+  if(error){
+    alert("Errore: "+error.message);
+    console.error(error);
+    return;
+  }
+
+  document.getElementById("ideaProduct").value="";
+  document.getElementById("ideaBuy").value="";
+  document.getElementById("ideaSell").value="";
+
+  await loadIdeas();
+}
+
+async function deleteIdea(id){
+
+  if(!confirm("Eliminare questa idea?")) return;
+
+  const {error}=await db
+    .from("ideas")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    alert("Errore: "+error.message);
+    return;
+  }
+
+  await loadIdeas();
+}
+
+async function loadInventory(){
+
+  const {data,error}=await db
+    .from("inventory")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const box=
+    document.getElementById("inventoryList");
+
+  if(!data.length){
+    box.innerHTML=
+      '<div class="card muted">Inventario vuoto 📦</div>';
+    return;
+  }
+
+  box.innerHTML=data.map(x=>`
+    <div class="item">
+      <div>
+        <b>${escapeHtml(x.product)}</b>
+        <div class="muted">
+          Costo ${euro(x.purchase_price)}
+          · Target ${euro(x.target_sell_price)}
+        </div>
+      </div>
+      <span class="tag">${escapeHtml(x.status)}</span>
+    </div>
+  `).join("");
+}
+
+async function addInventory(){
+
+  const product=
+    document.getElementById("invProduct").value.trim();
+
+  const buy=
+    Number(document.getElementById("invBuy").value);
+
+  const sell=
+    Number(document.getElementById("invSell").value);
+
+  if(!product || !buy || !sell){
+    alert("Compila tutti i campi.");
+    return;
+  }
+
+  const {error}=await db
+    .from("inventory")
+    .insert({
+      product:product,
+      purchase_price:buy,
+      target_sell_price:sell,
+      status:"DISPONIBILE"
+    });
+
+  if(error){
+    alert("Errore: "+error.message);
+    return;
+  }
+
+  document.getElementById("invProduct").value="";
+  document.getElementById("invBuy").value="";
+  document.getElementById("invSell").value="";
+
+  await loadInventory();
+  updateStats();
+}
+
+async function loadSales(){
+
+  const {data,error}=await db
+    .from("sales")
+    .select("*")
+    .order("sold_at",{ascending:false});
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const box=
+    document.getElementById("salesList");
+
+  if(!data.length){
+    box.innerHTML=
+      '<div class="card muted">Ancora nessuna vendita 💸</div>';
+    return;
+  }
+
+  box.innerHTML=data.map(x=>{
+
+    const profit=
+      Number(x.sale_price)-Number(x.purchase_price);
+
+    return `
+      <div class="item">
+        <div>
+          <b>${escapeHtml(x.product)}</b>
+          <div class="muted">
+            ${euro(x.purchase_price)}
+            → ${euro(x.sale_price)}
+          </div>
+        </div>
+        <strong class="${profit>=0?'good':'bad'}">
+          ${profit>=0?'+':''}${euro(profit)}
+        </strong>
+      </div>
+    `;
+  }).join("");
+}
+
+async function addSale(){
+
+  const product=
+    document.getElementById("saleProduct").value.trim();
+
+  const buy=
+    Number(document.getElementById("saleBuy").value);
+
+  const price=
+    Number(document.getElementById("salePrice").value);
+
+  if(!product || !buy || !price){
+    alert("Compila tutti i campi.");
+    return;
+  }
+
+  const {error}=await db
+    .from("sales")
+    .insert({
+      product:product,
+      purchase_price:buy,
+      sale_price:price,
+      fees:0,
+      sold_by:currentUser.id
+    });
+
+  if(error){
+    alert("Errore: "+error.message);
+    return;
+  }
+
+  document.getElementById("saleProduct").value="";
+  document.getElementById("saleBuy").value="";
+  document.getElementById("salePrice").value="";
+
+  await loadSales();
+  updateStats();
+}
+
+async function updateStats(){
+
+  const {data}=await db
+    .from("sales")
+    .select("sale_price,purchase_price");
+
+  const sales=data||[];
+
+  const revenue=
+    sales.reduce((a,x)=>a+Number(x.sale_price),0);
+
+  const profit=
+    sales.reduce(
+      (a,x)=>a+Number(x.sale_price)-Number(x.purchase_price),0
+    );
+
+  const {data:inventory}=await db
+    .from("inventory")
+    .select("purchase_price");
+
+  const invested=(inventory||[])
+    .reduce((a,x)=>a+Number(x.purchase_price),0);
+
+  document.getElementById("statCapital")
+    .textContent=euro(34+profit);
+
+  document.getElementById("capital")
+    .textContent=euro(34+profit);
+
+  document.getElementById("statInvested")
+    .textContent=euro(invested);
+
+  document.getElementById("statRevenue")
+    .textContent=euro(revenue);
+
+  document.getElementById("statProfit")
+    .textContent=euro(profit);
+}
+
+function escapeHtml(text){
+
+  return String(text??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* Se un utente è già loggato, entra direttamente */
+db.auth.getSession().then(({data})=>{
+
+  if(data.session){
+
+    currentUser=data.session.user;
+
+    document.getElementById("login")
+      .classList.add("hidden");
+
+    document.getElementById("app")
+      .classList.remove("hidden");
+
+    loadEverything();
+  }
+});
+
+/* Aggiorna i dati ogni 10 secondi */
+setInterval(()=>{
+
+  if(currentUser)
+    loadEverything();
+
+},10000);
 </script>
+
 </body>
 </html>
